@@ -1,0 +1,21 @@
+name: Deploy to Spoke A
+on: [push]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: 'Set up gcloud'
+        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: 'Authenticate to GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/442678282814/locations/global/workloadIdentityPools/github-final-pool/providers/github-final-provider'
+          service_account: 'team-a-deploy-sa@asml-gke-01.iam.gserviceaccount.com'
+      - name: 'Deploy to Spoke A'
+        run: |
+          BUCKET_NAME="team-a-bucket-from-${GITHUB_SHA::7}"
+          gsutil mb -p asml-gke-01 gs://${BUCKET_NAME}
+          echo "Bucket created in Team A project!"
